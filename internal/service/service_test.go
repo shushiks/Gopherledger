@@ -208,7 +208,7 @@ func TestRegisterUser(t *testing.T) {
 		{
 			name:          "Успешная регистрация нового пользователя",
 			login:         "Ivan",
-			password:      "123",
+			password:      "12356",
 			prepareStore:  func(s *FakeStore) {},
 			wantErr:       false,
 			expectedError: nil,
@@ -216,7 +216,7 @@ func TestRegisterUser(t *testing.T) {
 		{
 			name:     "Ошибка при создании дубликата пользователя",
 			login:    "Ivan",
-			password: "123",
+			password: "12301",
 			prepareStore: func(s *FakeStore) {
 				s.CreateUser("Ivan", "hello")
 			},
@@ -268,9 +268,9 @@ func TestLoginUser(t *testing.T) {
 		{
 			name:     "Успешный логин",
 			login:    "Ivan",
-			password: "123",
+			password: "12356",
 			prepareStore: func(s *FakeStore) {
-				hash := sha256.Sum256([]byte("123"))
+				hash := sha256.Sum256([]byte("12356"))
 				passwordHash := hex.EncodeToString(hash[:])
 				s.CreateUser("Ivan", passwordHash)
 			},
@@ -280,7 +280,7 @@ func TestLoginUser(t *testing.T) {
 		{
 			name:     "Неверный пароль",
 			login:    "Ivan",
-			password: "123",
+			password: "12301",
 			prepareStore: func(s *FakeStore) {
 				hash := sha256.Sum256([]byte("1234"))
 				passwordHash := hex.EncodeToString(hash[:])
@@ -292,7 +292,7 @@ func TestLoginUser(t *testing.T) {
 		{
 			name:          "Несуществующий пользователь",
 			login:         "Ivan",
-			password:      "123",
+			password:      "123900000",
 			prepareStore:  func(s *FakeStore) {},
 			wantErr:       true,
 			expectedError: domain.ErrUserNotFound,
@@ -332,7 +332,7 @@ func TestLoginUser(t *testing.T) {
 
 func TestCreateOrder(t *testing.T) {
 	const (
-		validLuhn   = "79927398713"
+		validLuhn   = "49927398716"
 		invalidLuhn = "1234567890"
 		userID      = 100
 		otherUserID = 200
@@ -404,7 +404,7 @@ func TestCreateOrder(t *testing.T) {
 
 func TestWithdraw(t *testing.T) {
 	const (
-		validLuhn = "79927398713"
+		validLuhn = "49927398716"
 		userID    = 1
 	)
 
@@ -444,7 +444,7 @@ func TestWithdraw(t *testing.T) {
 		{
 			name:          "Ошибка: неверный номер заказа (Луна)",
 			uid:           userID,
-			order:         "123",
+			order:         "1231",
 			sum:           10,
 			prepareStore:  func(s *FakeStore) {},
 			wantErr:       true,
@@ -601,12 +601,12 @@ func TestGetSystemStats(t *testing.T) {
 	_, _ = store.CreateUser("user1", "hash")
 	_, _ = store.CreateUser("user2", "hash")
 
-	_, _ = store.CreateOrder(1, "79927398713")
+	_, _ = store.CreateOrder(1, "49927398716")
 	_, _ = store.CreateOrder(2, "12345678903")
-	_ = store.UpdateOrderStatus("79927398713", domain.OrderStatusProcessed, 150.5)
+	_ = store.UpdateOrderStatus("49927398716", domain.OrderStatusProcessed, 150.5)
 
 	store.balances[1].Current = 100
-	_ = store.Withdraw(1, "79927398713", 40.0)
+	_ = store.Withdraw(1, "49927398716", 40.0)
 
 	users, stats, accrual, withdrawn, err := svc.GetSystemStats()
 

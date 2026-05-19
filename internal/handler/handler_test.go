@@ -131,7 +131,7 @@ func TestRegisterHandler(t *testing.T) {
 	}{
 		{
 			name:           "Успешная регистрация",
-			requestBody:    `{"login": "ivan", "password": "123"}`,
+			requestBody:    `{"login": "ivan", "password": "123456"}`,
 			method:         http.MethodPost,
 			setupService:   func(s *fakeService) {},
 			expectedStatus: http.StatusOK,
@@ -139,7 +139,7 @@ func TestRegisterHandler(t *testing.T) {
 		},
 		{
 			name:           "Дублирование логина",
-			requestBody:    `{"login": "conflict", "password": "123"}`,
+			requestBody:    `{"login": "conflict", "password": "12301"}`,
 			method:         http.MethodPost,
 			setupService:   func(s *fakeService) { s.RegisterUser("ivan", "123") },
 			expectedStatus: http.StatusConflict,
@@ -190,7 +190,7 @@ func TestLoginHandler(t *testing.T) {
 	}{
 		{
 			name:           "Успешный login",
-			requestBody:    `{"login": "ivan", "password": "123"}`,
+			requestBody:    `{"login": "ivan", "password": "123456"}`,
 			method:         http.MethodPost,
 			setupService:   func(s *fakeService) {},
 			expectedStatus: http.StatusOK,
@@ -206,7 +206,7 @@ func TestLoginHandler(t *testing.T) {
 		},
 		{
 			name:           "Пользователь не найден",
-			requestBody:    `{"login": "unknown", "password": "123"}`,
+			requestBody:    `{"login": "unknown", "password": "12301"}`,
 			method:         http.MethodPost,
 			setupService:   func(s *fakeService) {},
 			expectedStatus: http.StatusUnauthorized,
@@ -251,7 +251,7 @@ func TestCreateOrder(t *testing.T) {
 	const (
 		myUserID    int64 = 1
 		otherUserID int64 = 2
-		validOrder        = "79927398713"
+		validOrder        = "49927398716"
 	)
 
 	tests := []struct {
@@ -348,8 +348,8 @@ func TestGetOrders(t *testing.T) {
 			name:   "Успешное получение списка",
 			isAuth: true,
 			setupService: func(s *fakeService) {
-				s.orders["79927398713"] = 1
-				s.orders["12345678903"] = 1
+				s.orders["49927398716"] = 1
+				s.orders["11111111118"] = 1
 			},
 			expectedStatus: http.StatusOK,
 			expectedCount:  2,
@@ -495,20 +495,20 @@ func TestWithdraw(t *testing.T) {
 	}{
 		{
 			name:   "Успех",
-			body:   `{"order":"79927398713","sum":100}`,
+			body:   `{"order":"49927398716","sum":10}`,
 			setup:  func(s *fakeService) { s.balances[myUID] = domain.Balance{Current: 500} },
 			status: http.StatusOK,
 		},
 		{
 			name:   "Мало баллов",
-			body:   `{"order":"79927398713","sum":1000}`,
+			body:   `{"order":"11111111118","sum":100}`,
 			setup:  func(s *fakeService) { s.balances[myUID] = domain.Balance{Current: 10} },
 			status: http.StatusPaymentRequired,
 		},
 		{
 			name:   "Плохой заказ",
-			body:   `{"order":"invalid","sum":10}`,
-			setup:  func(s *fakeService) { s.balances[myUID] = domain.Balance{Current: 100} },
+			body:   `{"order":"invalid","sum":100}`,
+			setup:  func(s *fakeService) { s.balances[myUID] = domain.Balance{Current: 1000} },
 			status: http.StatusUnprocessableEntity,
 		},
 	}
