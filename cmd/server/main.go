@@ -36,7 +36,7 @@ func main() {
 	srv := service.New(str)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go srv.StartAccrualWorker(ctx)
+	go srv.StartAccrualWorker(ctx, cfg.Worker, cfg.Interval)
 
 	h := handler.New(srv)
 	r := router.New(h)
