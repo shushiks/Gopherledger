@@ -83,9 +83,6 @@ func (s *Service) RegisterUser(login, password string) (string, error) {
 func (s *Service) LoginUser(login, password string) (string, error) {
 	user, err := s.repo.GetUserByLogin(login)
 	if err != nil {
-		return "", err
-	}
-	if user == nil {
 		return "", domain.ErrUserNotFound
 	}
 	passwordHash := Hash(password)
@@ -94,7 +91,7 @@ func (s *Service) LoginUser(login, password string) (string, error) {
 	}
 	token, tokenErr := auth.GenerateToken(user.ID)
 	if tokenErr != nil {
-		return "", fmt.Errorf("Ошибка генерации токена при аутентификации: %w", err)
+		return "", fmt.Errorf("Ошибка генерации токена при аутентификации: %w", tokenErr)
 	}
 	return token, nil
 }

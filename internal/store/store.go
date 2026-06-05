@@ -60,6 +60,7 @@ func (s *Store) CreateUser(login, passwordHash string) (*domain.User, error) {
 	}
 	s.users[user.ID] = user
 	s.usersByLogin[user.Login] = user
+	s.balances[user.ID] = &domain.Balance{Current: 0, Withdrawn: 0}
 	s.nextID += 1
 	return user, nil
 }
@@ -91,6 +92,7 @@ func (s *Store) CreateOrder(userID int64, number string) (*domain.Order, error) 
 		ID:     s.nextID,
 		UserID: userID,
 		Number: number,
+		Status: domain.OrderStatusNew,
 	}
 	s.orders[order.Number] = order
 	s.nextID += 1
@@ -205,26 +207,23 @@ func (s *Store) GetWithdrawals(userID int64) ([]domain.Withdrawal, error) {
 
 func (s *Store) GetOverallStats() (int, map[string]int, float64, float64, error) {
 	s.mu.RLock()
-	userCount := len(s.users)
-	s.mu.RUnlock()
+	defer s.mu.RUnlock()
 
-	s.mu.RLock()
+	userCount := len(s.users)
+
 	statusCounts := make(map[string]int)
 	var totalAccrual float64
 	for _, order := range s.orders {
 		statusCounts[order.Status]++
 		totalAccrual += order.Accrual
 	}
-	s.mu.RUnlock()
 
-	s.mu.RLock()
 	var totalWithdrawn float64
 	for _, userWithdrawals := range s.withdrawals {
 		for _, w := range userWithdrawals {
 			totalWithdrawn += w.Sum
 		}
 	}
-	s.mu.RUnlock()
 
 	return userCount, statusCounts, totalAccrual, totalWithdrawn, nil
 }

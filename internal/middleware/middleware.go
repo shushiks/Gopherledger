@@ -23,8 +23,8 @@ import (
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == "" || token == authHeader {
+		token := strings.TrimSpace(authHeader)
+		if token == "" {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
