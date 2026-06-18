@@ -89,10 +89,11 @@ func (s *Store) CreateOrder(userID int64, number string) (*domain.Order, error) 
 		return nil, domain.ErrOrderExists
 	}
 	order := &domain.Order{
-		ID:     s.nextID,
-		UserID: userID,
-		Number: number,
-		Status: domain.OrderStatusNew,
+		ID:         s.nextID,
+		UserID:     userID,
+		Number:     number,
+		Status:     domain.OrderStatusNew,
+		UploadedAt: time.Now(),
 	}
 	s.orders[order.Number] = order
 	s.nextID += 1
